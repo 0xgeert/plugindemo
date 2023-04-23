@@ -44,23 +44,6 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 }
 
 func (a *Demo) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	for key, value := range a.headers {
-		tmpl, err := a.template.Parse(value)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		writer := &bytes.Buffer{}
-
-		err = tmpl.Execute(writer, req)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		req.Header.Set(key, writer.String())
-	}
-
+	rw.Header().Set("X-Backend-Server", req.RemoteAddr)
 	a.next.ServeHTTP(rw, req)
 }
